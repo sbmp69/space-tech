@@ -114,7 +114,7 @@ function MissionOverview() {
            title: "System Anomaly Detected",
            detail: `Voltage: ${newVoltage.toFixed(1)}V, Temp: ${newTemp.toFixed(1)}C, RPM: ${newRpm}`,
            state: "critical"
-         }, ...missionSnapshot.events].slice(0, 15);
+         }, ...missionSnapshot.events].slice(0, 5);
       } else if (!anomalyDetected && hasAnomaly) {
          missionSnapshot.events = [{
            time: currentTime,
@@ -123,7 +123,7 @@ function MissionOverview() {
            title: "Systems Recovered to Nominal",
            detail: `Voltage restored. Current: ${newVoltage.toFixed(1)}V`,
            state: "healthy"
-         }, ...missionSnapshot.events].slice(0, 15);
+         }, ...missionSnapshot.events].slice(0, 5);
       }
 
       if (anomalyDetected && !isFetchingSitrep && !hasAnomaly) {
@@ -146,7 +146,7 @@ function MissionOverview() {
         .finally(() => {
           isFetchingSitrep = false;
         });
-      } else if (newVoltage >= 20.0 && hasAnomaly) {
+      } else if (!anomalyDetected && hasAnomaly) {
          hasAnomaly = false;
          missionSnapshot.anomaly.description = "System Nominal. Awaiting telemetry anomalies...";
       }
