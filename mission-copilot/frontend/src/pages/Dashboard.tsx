@@ -18,7 +18,7 @@ export function Dashboard() {
     let reconnectTimeout: NodeJS.Timeout;
 
     const connect = () => {
-      ws = new WebSocket('ws://localhost:8000/ws/telemetry')
+      ws = new WebSocket(`${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/telemetry`)
       
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data)

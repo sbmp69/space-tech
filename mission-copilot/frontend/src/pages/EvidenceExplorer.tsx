@@ -6,7 +6,7 @@ export function EvidenceExplorer() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/evidence')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/evidence`)
       .then(r => r.json())
       .then(data => {
         if (data.data) setEvidence(data.data);

@@ -6,7 +6,7 @@ export function IncidentTimeline() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/timeline')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/timeline`)
       .then(r => r.json())
       .then(data => {
         if (data.events) setEvents(data.events);

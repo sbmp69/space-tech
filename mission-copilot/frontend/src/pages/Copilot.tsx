@@ -46,7 +46,7 @@ export function Copilot() {
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/query', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMsg, mission_id: 'ST10-DEMO-001' })
