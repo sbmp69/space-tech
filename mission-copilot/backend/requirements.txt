@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+supabase
+openai
+websockets
+pydantic
+python-dotenv
+sentence-transformers
