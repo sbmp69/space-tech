@@ -93,6 +93,22 @@ function MissionOverview() {
       missionSnapshot.anomaly.temperatureC = newTemp;
 
       const anomalyDetected = newVoltage < 20.0 || newTemp > 85.0 || newRpm < 3000;
+      
+      if (newVoltage < 20.0) {
+          missionSnapshot.anomaly.type = "POWER SYSTEM";
+          missionSnapshot.anomaly.value = newVoltage.toFixed(1) + " V";
+          missionSnapshot.anomaly.subtext = "NORMAL 24-32V • DETECTED " + currentTime;
+      } else if (newTemp > 85.0) {
+          missionSnapshot.anomaly.type = "THERMAL SYSTEM";
+          missionSnapshot.anomaly.value = newTemp.toFixed(1) + " °C";
+          missionSnapshot.anomaly.subtext = "NORMAL 60-80°C • DETECTED " + currentTime;
+      } else if (newRpm < 3000) {
+          missionSnapshot.anomaly.type = "LIFE SUPPORT";
+          missionSnapshot.anomaly.value = newRpm.toFixed(0) + " RPM";
+          missionSnapshot.anomaly.subtext = "NORMAL 3500-4500 • DETECTED " + currentTime;
+      } else {
+          missionSnapshot.anomaly.type = "NONE";
+      }
 
       // Dynamic Systems Update
       missionSnapshot.systems = [
@@ -214,7 +230,7 @@ function MissionOverview() {
         </header>
 
         <main className="relative mx-auto max-w-[1600px] px-4 pb-10 pt-6 sm:px-7 sm:pt-8 xl:px-10">
-          <MissionHero clock={clock} />
+          <MissionHero clock={clock} anomaly={missionSnapshot.anomaly} />
 
           <section aria-labelledby="anomaly-heading" className="relative mb-5 overflow-hidden border border-warning/35 bg-panel">
             <div className="absolute inset-y-0 left-0 w-[3px] bg-warning" />
