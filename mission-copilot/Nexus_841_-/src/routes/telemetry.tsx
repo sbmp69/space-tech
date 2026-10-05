@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { missionSnapshot } from "@/lib/mission-liveData";
+import { missionSnapshot } from "@/lib/mission-data";
 
 export const Route = createFileRoute("/telemetry")({
   head: () => ({
