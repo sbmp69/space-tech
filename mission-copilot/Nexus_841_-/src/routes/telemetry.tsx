@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { missionSnapshot } from "@/lib/mission-data";
+import { missionSnapshot } from "@/lib/mission-liveData";
 
 export const Route = createFileRoute("/telemetry")({
   head: () => ({
@@ -65,14 +65,14 @@ const channels: Channel[] = [
   },
 ];
 
-const data = missionSnapshot.telemetry;
+
 const events = missionSnapshot.events.filter((e) => e.level !== "INFO");
 const causalEvents = missionSnapshot.events.filter((e) =>
   ["FAN_SPEED_LOW", "TEMP_THRESHOLD_EXCEEDED", "THERMAL_WARNING"].includes(e.code),
 );
 // Correlated anomaly records reused from Mission Logs (thermal + power evidence inside the window)
 const records = missionLogs.filter((l) => l.anomaly && (l.system === "THERMAL" || l.system === "POWER") && l.evidence && ["telemetry", "power", "log"].includes(l.evidence.key));
-const sampleIndex = (time: string) => Math.max(0, data.findIndex((d) => d.time === time.slice(0, 5)));
+const sampleIndex = (time: string) => Math.max(0, liveData.findIndex((d) => d.time === time.slice(0, 5)));
 const recBox: Record<string, string> = {
   HIGH: "border-critical/35 bg-critical/10 text-critical",
   WARNING: "border-warning/35 bg-warning/10 text-warning",
@@ -91,17 +91,40 @@ const stateText: Record<State, string> = { healthy: "text-healthy", warning: "te
 const stateLabel: Record<State, string> = { healthy: "NOMINAL", warning: "CAUTION", critical: "OUT OF LIMIT" };
 
 function TelemetryPage() {
+  const [liveData, setLiveData] = useState(missionSnapshot.telemetry);
+
+  useEffect(() => {
+    const ws = new WebSocket(`${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/telemetry`);
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      setLiveData(prev => {
+        const newData = [...prev, {
+          time: `14:32:${String(msg.tick).padStart(2, '0')}`,
+          temperature: msg.core_temp,
+          fanRpm: msg.life_support * 40,
+          voltage: msg.voltage
+        }];
+        // Keep last 30 points
+        if (newData.length > 30) return newData.slice(newData.length - 30);
+        return newData;
+      });
+      // Move cursor to end
+      setCursor(prev => liveData.length - 1);
+    };
+    return () => ws.close();
+  }, [liveData.length]);
+
   const [clock, setClock] = useState("--:--:-- UTC");
   const [selectedId, setSelectedId] = useState("THM-04A");
   const [compare, setCompare] = useState<Record<string, boolean>>({ "THM-07F": true });
-  const [cursor, setCursor] = useState(data.length - 1);
+  const [cursor, setCursor] = useState(liveData.length - 1);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<"severity" | "id">("severity");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [record, setRecord] = useState<LogEntry | null>(null);
 
-  const sample = data[cursor] ?? data[data.length - 1]!;
-  const baseline = data[0]!;
+  const sample = liveData[cursor] ?? liveData[liveData.length - 1]!;
+  const baseline = liveData[0]!;
   const selected = channels.find((c) => c.id === selectedId) ?? channels[0]!;
 
   useEffect(() => {
@@ -132,7 +155,7 @@ function TelemetryPage() {
   const countOf = (f: Filter) => channels.filter((c) => f === "ALL" || stateOf(c, sample[c.key]) === f).length;
 
   const overlays = channels.filter((c) => c.id !== selectedId && compare[c.id]);
-  const firstBreach = data.find((d) => stateOf(selected, d[selected.key]) !== "healthy");
+  const firstBreach = liveData.find((d) => stateOf(selected, d[selected.key]) !== "healthy");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -309,7 +332,7 @@ function TelemetryPage() {
             <div className="h-[320px] px-2 pt-3">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={[...data]}
+                  data={[...liveData]}
                   margin={{ top: 10, right: 14, bottom: 2, left: 2 }}
                   onClick={(s) => { if (typeof s?.activeTooltipIndex === "number") setCursor(s.activeTooltipIndex); }}
                 >
@@ -334,7 +357,7 @@ function TelemetryPage() {
                 <span className="flex items-center gap-1.5"><Crosshair className="size-3" /> SAMPLE CURSOR — click chart or drag</span>
                 <span className="text-foreground">{sample.time} UTC</span>
               </div>
-              <input type="range" min={0} max={data.length - 1} value={cursor} onChange={(e) => setCursor(Number(e.target.value))} aria-label="Sample cursor" aria-valuetext={`${sample.time} UTC`} className="telemetry-range w-full" />
+              <input type="range" min={0} max={liveData.length - 1} value={cursor} onChange={(e) => setCursor(Number(e.target.value))} aria-label="Sample cursor" aria-valuetext={`${sample.time} UTC`} className="telemetry-range w-full" />
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {events.map((e) => (
                     <button key={e.code} type="button" onClick={() => setCursor(sampleIndex(e.time))} aria-label={`Jump to ${e.title} at ${e.time} UTC`} className={`min-h-7 rounded-sm border px-2 py-1 font-mono text-[9px] tracking-[0.08em] transition-colors hover:bg-panel-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring ${e.state === "warning" ? "border-warning/35 text-warning" : "border-critical/35 text-critical"}`}>
@@ -349,7 +372,7 @@ function TelemetryPage() {
               </div>
               <ul>
                 {records.map((l) => {
-                  const atCursor = data[cursor]!.time === l.time.slice(0, 5);
+                  const atCursor = liveData[cursor]!.time === l.time.slice(0, 5);
                   return (
                     <li key={l.id}>
                       <button type="button" onClick={() => { setRecord(l); setCursor(sampleIndex(l.time)); }} className={`grid w-full grid-cols-[64px_78px_1fr_auto] items-center gap-3 border-t border-border px-4 py-2 text-left font-mono text-[10px] transition-colors hover:bg-panel-raised ${atCursor ? "bg-primary/5" : ""}`}>
@@ -414,7 +437,7 @@ function TelemetryPage() {
 }
 
 function RecordDetail({ r }: { r: LogEntry }) {
-  const d = data[sampleIndex(r.time)]!;
+  const d = liveData[sampleIndex(r.time)]!;
   return (
     <>
       <SheetHeader className={`border-b border-l-2 border-border p-5 text-left ${r.severity === "HIGH" ? "border-l-critical" : "border-l-warning"}`}>
@@ -469,8 +492,8 @@ function RecordDetail({ r }: { r: LogEntry }) {
 }
 
 function peak(c: Channel) {
-  const b: number = data[0]![c.key];
-  const worst = data.reduce<number>((m, d) => (Math.abs(d[c.key] - b) > Math.abs(m - b) ? d[c.key] : m), b);
+  const b: number = liveData[0]![c.key];
+  const worst = liveData.reduce<number>((m, d) => (Math.abs(d[c.key] - b) > Math.abs(m - b) ? d[c.key] : m), b);
   const d = worst - b;
   return `${d > 0 ? "+" : ""}${c.fmt(d)} ${c.unit}`;
 }
