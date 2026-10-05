@@ -1,0 +1,41 @@
+export type Severity = "INFO" | "WARNING" | "HIGH";
+export type LogStatus = "NORMAL" | "OPEN" | "ACTIVE" | "ACKNOWLEDGED" | "RESOLVED";
+
+export type LogEntry = {
+  id: string;
+  time: string;
+  severity: Severity;
+  system: string;
+  event: string;
+  source: string;
+  status: LogStatus;
+  message: string;
+  detail: string;
+  raw: string[];
+  anomaly?: string;
+  evidence?: { key: "telemetry" | "power" | "log" | "incident" | "procedure" | "operator"; label: string };
+};
+
+const anomalyNote =
+  "Part of the event sequence leading to the 14:32:04 thermal threshold breach on cooling loop B.";
+
+export const missionLogs: LogEntry[] = [
+  { id: "EVT-20841", time: "14:02:15", severity: "INFO", system: "COMMUNICATIONS", event: "AOS_GROUND_STATION", source: "COM-GS-03", status: "NORMAL", message: "Acquisition of signal, Svalbard ground station", detail: "Downlink established at 2.2 GHz, link margin 6.4 dB.", raw: ["[14:02:15.112] COM/RX  INFO  AOS station=SVB-03 margin=6.4dB"] },
+  { id: "EVT-20844", time: "14:06:40", severity: "INFO", system: "POWER", event: "BATTERY_CHARGE_NOMINAL", source: "PWR-BAT-1", status: "NORMAL", message: "Battery state of charge 94%", detail: "Primary battery charging within expected profile during sunlit phase.", raw: ["[14:06:40.008] PWR/BAT  INFO  soc=94% temp=21.4C"] },
+  { id: "EVT-20850", time: "14:11:03", severity: "INFO", system: "NAVIGATION", event: "STAR_TRACKER_LOCK", source: "NAV-ST-A", status: "NORMAL", message: "Star tracker A attitude solution locked", detail: "Attitude knowledge error 0.004°, 18 stars identified.", raw: ["[14:11:03.420] NAV/ST-A  INFO  lock=1 stars=18 err=0.004deg"] },
+  { id: "EVT-20857", time: "14:14:27", severity: "WARNING", system: "COMMUNICATIONS", event: "PACKET_RETRANSMIT", source: "COM-TX-02", status: "RESOLVED", message: "Brief telemetry packet retransmission burst", detail: "12 packets retransmitted over 4 s due to atmospheric fade; link recovered automatically.", raw: ["[14:14:27.551] COM/TX  WARN  retx=12 window=4s", "[14:14:31.602] COM/TX  INFO  link nominal"] },
+  { id: "EVT-20862", time: "14:18:50", severity: "INFO", system: "PROPULSION", event: "TANK_PRESSURE_CHECK", source: "PRP-TK-2", status: "NORMAL", message: "Hydrazine tank pressure 22.1 bar", detail: "Routine pressure check within nominal band.", raw: ["[14:18:50.300] PRP/TK2  INFO  p=22.1bar"] },
+  { id: "EVT-20866", time: "14:22:09", severity: "INFO", system: "LIFE SUPPORT", event: "CO2_SCRUBBER_CYCLE", source: "ECL-CDRA-1", status: "NORMAL", message: "CO₂ scrubber bed swap completed", detail: "Bed B online, ppCO₂ 2.1 mmHg.", raw: ["[14:22:09.774] ECL/CDRA  INFO  bed=B ppco2=2.1"] },
+  { id: "EVT-20871", time: "14:26:44", severity: "WARNING", system: "POWER", event: "SOLAR_ARRAY_OFFPOINT", source: "PWR-SA-2", status: "ACKNOWLEDGED", message: "Solar array 2 off-point 1.8°", detail: "Array drive compensating; generation reduced 0.6%. Acknowledged by DEMO-01.", raw: ["[14:26:44.105] PWR/SA2  WARN  offpoint=1.8deg"] },
+  { id: "LOG-4820", time: "14:30:00", severity: "INFO", system: "THERMAL", event: "SYSTEM_NOMINAL", source: "THM-04A", status: "NORMAL", message: "System nominal · thermal temperature 72°C", detail: "Baseline reading for cooling loop B before the anomaly window: 72.0°C at 4,200 RPM.", raw: ["[14:30:00.000] THM/04A  INFO  temp=72.0C fan_b=4200rpm"], anomaly: "Establishes the nominal baseline used to measure the subsequent thermal deviation.", evidence: { key: "telemetry", label: "TELEMETRY THM-04A · Temperature and fan RPM correlation" } },
+  { id: "LOG-4821", time: "14:31:12", severity: "WARNING", system: "THERMAL", event: "FAN_SPEED_LOW", source: "LOG-4821", status: "OPEN", message: "Cooling fan speed below threshold · 4200 → 1800 RPM", detail: "Cooling loop B fan dropped below the 2,500 RPM threshold, 52 s before the temperature breach.", raw: ["[14:31:12.044] THM/FAN-B  WARN  FAN_SPEED_LOW rpm=1800 thr=2500", "[14:31:12.051] ALERT-SVC  RAISE alert_id=A-7731 code=FAN_SPEED_LOW"], anomaly: anomalyNote, evidence: { key: "log", label: "MISSION LOG LOG-4821 · FAN_SPEED_LOW event" } },
+  { id: "EVT-20880", time: "14:31:40", severity: "WARNING", system: "POWER", event: "BUS_B_VOLTAGE_SAG", source: "PWR-BUS-B", status: "OPEN", message: "Cooling loop B supply 11.96 V, below 12.0 V", detail: "Voltage on the bus powering fan assembly B is trending below its nominal band.", raw: ["[14:31:40.230] PWR/BUS-B  WARN  v=11.96 nominal=11.9-12.3"], anomaly: "Supply sag on the fan bus is consistent with the reduced fan speed.", evidence: { key: "power", label: "POWER TELEMETRY PWR-BUS-B · Cooling loop B supply voltage" } },
+  { id: "LOG-4822", time: "14:32:04", severity: "HIGH", system: "THERMAL", event: "TEMP_THRESHOLD_EXCEEDED", source: "LOG-4822", status: "OPEN", message: "Thermal reading exceeded the 80°C operating limit", detail: "Cooling loop B crossed the 80°C upper operating limit. Anomaly THM-042-031 opened.", raw: ["[14:32:04.002] THM/04A  HIGH  TEMP_THRESHOLD_EXCEEDED temp=80.3C limit=80.0C", "[14:32:04.010] NEXUS  OPEN  incident=THM-042-031"], anomaly: anomalyNote, evidence: { key: "telemetry", label: "TELEMETRY THM-04A · Temperature and fan RPM correlation" } },
+  { id: "EVT-20884", time: "14:32:30", severity: "INFO", system: "THERMAL", event: "PROCEDURE_LINKED", source: "NEXUS-AI", status: "NORMAL", message: "Procedure CP-04 matched to thermal anomaly", detail: "NEXUS linked approved procedure CP-04 Cooling System Troubleshooting to the open anomaly.", raw: ["[14:32:30.400] NEXUS  INFO  procedure=CP-04 rev=4.2"], anomaly: "Approved troubleshooting procedure associated with this anomaly.", evidence: { key: "procedure", label: "OFFICIAL PROCEDURE CP-04 · Cooling System Troubleshooting" } },
+  { id: "EVT-20886", time: "14:32:52", severity: "INFO", system: "THERMAL", event: "HISTORICAL_MATCH", source: "INC-182", status: "NORMAL", message: "Similar incident INC-182 found · 91% similarity", detail: "Pattern match against incident history: fan RPM degradation followed by thermal warning.", raw: ["[14:32:52.118] NEXUS  INFO  match=INC-182 similarity=0.91"], anomaly: "Comparable historical pattern; not a confirmed root cause.", evidence: { key: "incident", label: "INCIDENT HISTORY INC-182 · Similar thermal anomaly" } },
+  { id: "LOG-4823", time: "14:33:18", severity: "HIGH", system: "THERMAL", event: "THERMAL_WARNING", source: "LOG-4823", status: "ACTIVE", message: "Thermal system warning · temperature reached 89.2°C", detail: "Temperature continues rising with fan B held at ~1,800 RPM. Warning remains active.", raw: ["[14:33:18.661] THM/04A  HIGH  THERMAL_WARNING temp=85.5C trend=+3.6C/min", "[14:34:00.000] THM/04A  HIGH  temp=89.2C"], anomaly: anomalyNote, evidence: { key: "telemetry", label: "TELEMETRY THM-04A · Temperature and fan RPM correlation" } },
+  { id: "EVT-20891", time: "14:33:45", severity: "INFO", system: "NAVIGATION", event: "ORBIT_DETERMINATION", source: "NAV-GPS-1", status: "NORMAL", message: "Orbit determination update · residual 1.2 m", detail: "GNSS-based orbit solution refreshed; no manoeuvre required.", raw: ["[14:33:45.009] NAV/GPS  INFO  residual=1.2m"] },
+  { id: "EVT-20893", time: "14:34:20", severity: "INFO", system: "THERMAL", event: "OPERATOR_ACK", source: "DEMO-01", status: "ACKNOWLEDGED", message: "Operator acknowledged thermal warning", detail: "Flight operator DEMO-01 acknowledged THM-042-031 and opened the investigation.", raw: ["[14:34:20.300] OPS  ACK  operator=DEMO-01 incident=THM-042-031"], anomaly: "Operator action recorded against the active anomaly.", evidence: { key: "operator", label: "OPERATOR RECORD DEMO-01 · Acknowledgement" } },
+  { id: "EVT-20895", time: "14:35:02", severity: "INFO", system: "LIFE SUPPORT", event: "CABIN_PRESSURE_NOMINAL", source: "ECL-PCS-1", status: "NORMAL", message: "Cabin pressure 101.2 kPa", detail: "Pressure control system nominal.", raw: ["[14:35:02.550] ECL/PCS  INFO  p=101.2kPa"] },
+  { id: "EVT-20897", time: "14:36:10", severity: "INFO", system: "PROPULSION", event: "THRUSTER_HEATER_CYCLE", source: "PRP-HTR-4", status: "NORMAL", message: "Thruster block 4 heater cycled on", detail: "Catalyst bed heater within thermostat band; unrelated to cooling loop B.", raw: ["[14:36:10.770] PRP/HTR4  INFO  state=ON bed=118C"] },
+];

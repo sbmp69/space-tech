@@ -1,0 +1,252 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-gridline: var(--gridline);
+  --color-warning: var(--warning);
+  --color-healthy: var(--healthy);
+  --color-signal-cyan: var(--signal-cyan);
+  --color-critical: var(--critical);
+  --color-quiet: var(--quiet);
+}
+
+:root {
+  --radius: 0.375rem;
+  --background: oklch(0.13 0.02 254);
+  --foreground: oklch(0.91 0.012 230);
+  --card: oklch(0.18 0.02 252);
+  --card-foreground: oklch(0.91 0.012 230);
+  --popover: oklch(0.18 0.02 252);
+  --popover-foreground: oklch(0.91 0.012 230);
+  --primary: oklch(0.75 0.14 70);
+  --primary-foreground: oklch(0.18 0.03 45);
+  --secondary: oklch(0.22 0.021 250);
+  --secondary-foreground: oklch(0.82 0.012 230);
+  --muted: oklch(0.21 0.018 252);
+  --muted-foreground: oklch(0.62 0.02 240);
+  --accent: oklch(0.24 0.025 248);
+  --accent-foreground: oklch(0.93 0.01 230);
+  --destructive: oklch(0.61 0.18 28);
+  --destructive-foreground: oklch(0.95 0.015 30);
+  --border: oklch(0.30 0.022 248);
+  --input: oklch(0.27 0.022 248);
+  --ring: oklch(0.73 0.11 70);
+  --chart-1: oklch(0.76 0.13 70);
+  --chart-2: oklch(0.77 0.12 205);
+  --chart-3: oklch(0.72 0.14 150);
+  --chart-4: oklch(0.67 0.16 28);
+  --chart-5: oklch(0.72 0.11 280);
+  --sidebar: oklch(0.13 0.017 252);
+  --sidebar-foreground: oklch(0.81 0.012 230);
+  --sidebar-primary: oklch(0.75 0.14 70);
+  --sidebar-primary-foreground: oklch(0.18 0.03 45);
+  --sidebar-accent: oklch(0.21 0.022 250);
+  --sidebar-accent-foreground: oklch(0.92 0.01 230);
+  --sidebar-border: oklch(0.26 0.02 250);
+  --sidebar-ring: oklch(0.73 0.11 70);
+  --panel: oklch(0.175 0.019 252);
+  --panel-raised: oklch(0.195 0.02 252);
+  --gridline: oklch(0.31 0.02 250);
+  --warning: oklch(0.78 0.14 72);
+  --healthy: oklch(0.74 0.13 153);
+  --signal-cyan: oklch(0.76 0.12 205);
+  --critical: oklch(0.68 0.17 32);
+  --quiet: oklch(0.51 0.02 245);
+}
+
+.dark {
+  --background: oklch(0.13 0.02 254);
+  --foreground: oklch(0.91 0.012 230);
+  --card: oklch(0.18 0.02 252);
+  --card-foreground: oklch(0.91 0.012 230);
+  --popover: oklch(0.18 0.02 252);
+  --popover-foreground: oklch(0.91 0.012 230);
+  --primary: oklch(0.75 0.14 70);
+  --primary-foreground: oklch(0.18 0.03 45);
+  --secondary: oklch(0.22 0.021 250);
+  --secondary-foreground: oklch(0.82 0.012 230);
+  --muted: oklch(0.21 0.018 252);
+  --muted-foreground: oklch(0.62 0.02 240);
+  --accent: oklch(0.24 0.025 248);
+  --accent-foreground: oklch(0.93 0.01 230);
+  --destructive: oklch(0.61 0.18 28);
+  --destructive-foreground: oklch(0.95 0.015 30);
+  --border: oklch(0.30 0.022 248);
+  --input: oklch(0.27 0.022 248);
+  --ring: oklch(0.73 0.11 70);
+  --chart-1: oklch(0.76 0.13 70);
+  --chart-2: oklch(0.77 0.12 205);
+  --chart-3: oklch(0.72 0.14 150);
+  --chart-4: oklch(0.67 0.16 28);
+  --chart-5: oklch(0.72 0.11 280);
+  --sidebar: oklch(0.13 0.017 252);
+  --sidebar-foreground: oklch(0.81 0.012 230);
+  --sidebar-primary: oklch(0.75 0.14 70);
+  --sidebar-primary-foreground: oklch(0.18 0.03 45);
+  --sidebar-accent: oklch(0.21 0.022 250);
+  --sidebar-accent-foreground: oklch(0.92 0.01 230);
+  --sidebar-border: oklch(0.26 0.02 250);
+  --sidebar-ring: oklch(0.73 0.11 70);
+  --panel: oklch(0.175 0.019 252);
+  --panel-raised: oklch(0.195 0.02 252);
+  --gridline: oklch(0.31 0.02 250);
+  --warning: oklch(0.78 0.14 72);
+  --healthy: oklch(0.74 0.13 153);
+  --signal-cyan: oklch(0.76 0.12 205);
+  --critical: oklch(0.68 0.17 32);
+  --quiet: oklch(0.51 0.02 245);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+.telemetry-range {
+  height: 1rem;
+  appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.telemetry-range::-webkit-slider-runnable-track {
+  height: 0.25rem;
+  background: var(--color-border);
+}
+
+.telemetry-range::-moz-range-track {
+  height: 0.25rem;
+  background: var(--color-border);
+}
+
+.telemetry-range::-webkit-slider-thumb {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: -0.3125rem;
+  appearance: none;
+  border: 2px solid var(--color-primary);
+  border-radius: 9999px;
+  background: var(--color-background);
+}
+
+.telemetry-range::-moz-range-thumb {
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 9999px;
+  background: var(--color-background);
+}
+
+.telemetry-range:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 0.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Deep-space mission console surfaces */
+:root {
+  --space-deep: oklch(0.12 0.02 255);
+  --star: oklch(0.95 0.01 230);
+}
+@utility space-field {
+  background-color: var(--space-deep);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, color-mix(in oklab, var(--star) 55%, transparent), transparent),
+    radial-gradient(1px 1px at 68% 9%, color-mix(in oklab, var(--star) 40%, transparent), transparent),
+    radial-gradient(1px 1px at 84% 42%, color-mix(in oklab, var(--star) 35%, transparent), transparent),
+    radial-gradient(1px 1px at 33% 61%, color-mix(in oklab, var(--star) 30%, transparent), transparent),
+    radial-gradient(1px 1px at 52% 83%, color-mix(in oklab, var(--star) 30%, transparent), transparent),
+    radial-gradient(1px 1px at 91% 77%, color-mix(in oklab, var(--star) 40%, transparent), transparent),
+    radial-gradient(1px 1px at 6% 72%, color-mix(in oklab, var(--star) 35%, transparent), transparent),
+    radial-gradient(1px 1px at 44% 31%, color-mix(in oklab, var(--star) 25%, transparent), transparent);
+  background-size: 420px 420px;
+  background-attachment: fixed;
+}
+@utility hero-console {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--space-deep) 85%, transparent));
+}
+@utility console-rail {
+  background: color-mix(in oklab, var(--space-deep) 92%, var(--signal-cyan) 3%);
+}

@@ -1,0 +1,3 @@
+- [x] Restore the supplied NEXUS project screens and shared ORBIT-42 data
+- [x] Finalize the existing Telemetry screen without starting another navigation item
+- [x] Check interactions, responsive layout, and preview output
