@@ -91,8 +91,42 @@ function MissionOverview() {
       }];
       
       missionSnapshot.anomaly.temperatureC = newTemp;
-      
-      if (newVoltage < 20.0 && !isFetchingSitrep && !hasAnomaly) {
+
+      const anomalyDetected = newVoltage < 20.0 || newTemp > 85.0 || newRpm < 3000;
+
+      // Dynamic Systems Update
+      missionSnapshot.systems = [
+        { name: "THERMAL", status: newTemp > 85.0 ? "WARNING" : "NOMINAL", state: newTemp > 85.0 ? "warning" : "healthy" },
+        { name: "POWER", status: newVoltage < 20.0 ? "CRITICAL" : "NOMINAL", state: newVoltage < 20.0 ? "critical" : "healthy" },
+        { name: "COMMUNICATIONS", status: "NOMINAL", state: "healthy" },
+        { name: "PROPULSION", status: "NOMINAL", state: "healthy" },
+        { name: "NAVIGATION", status: "NOMINAL", state: "healthy" },
+        { name: "LIFE SUPPORT", status: newRpm < 3000 ? "WARNING" : "NOMINAL", state: newRpm < 3000 ? "warning" : "healthy" },
+      ];
+
+      // Dynamic Events Update
+      const currentTime = msg.timestamp || new Date().toISOString().substring(11, 19);
+      if (anomalyDetected && !hasAnomaly) {
+         missionSnapshot.events = [{
+           time: currentTime,
+           level: "CRITICAL",
+           code: "ANOMALY_DETECTED",
+           title: "System Anomaly Detected",
+           detail: `Voltage: ${newVoltage.toFixed(1)}V, Temp: ${newTemp.toFixed(1)}C, RPM: ${newRpm}`,
+           state: "critical"
+         }, ...missionSnapshot.events].slice(0, 15);
+      } else if (!anomalyDetected && hasAnomaly) {
+         missionSnapshot.events = [{
+           time: currentTime,
+           level: "INFO",
+           code: "SYSTEM_RECOVERY",
+           title: "Systems Recovered to Nominal",
+           detail: `Voltage restored. Current: ${newVoltage.toFixed(1)}V`,
+           state: "healthy"
+         }, ...missionSnapshot.events].slice(0, 15);
+      }
+
+      if (anomalyDetected && !isFetchingSitrep && !hasAnomaly) {
         isFetchingSitrep = true;
         hasAnomaly = true;
         missionSnapshot.anomaly.description = "AI SITREP: Analyzing telemetry via OpenAI gpt-4o-mini...";
@@ -275,7 +309,7 @@ function MissionOverview() {
               </div>
               <div className="mx-5 mt-3 mb-4 flex items-center gap-2 border border-warning/20 bg-warning/5 px-3 py-2 text-[9px] text-muted-foreground">
                 <AlertTriangle className="size-3.5 shrink-0 text-warning" />
-                <span>1 system requires operator attention</span>
+                <span>{missionSnapshot.systems.filter(s => s.state !== "healthy").length} system(s) require operator attention</span>
                 <ArrowRight className="ml-auto size-3 text-warning" />
               </div>
             </section>
@@ -304,7 +338,7 @@ function MissionOverview() {
                 })}
               </div>
               <div className="flex items-center justify-between border-t border-border px-5 py-3">
-                <span className="font-mono text-[8px] tracking-[0.1em] text-quiet">SHOWING 4 OF 24 EVENTS</span>
+                <span className="font-mono text-[8px] tracking-[0.1em] text-quiet">SHOWING {missionSnapshot.events.length} LATEST EVENTS</span>
                 <Link to="/logs" className="font-mono text-[8px] tracking-[0.1em] text-signal-cyan transition-colors hover:text-foreground">MISSION LOG <ArrowRight className="ml-1 inline size-3" /></Link>
               </div>
             </section>
