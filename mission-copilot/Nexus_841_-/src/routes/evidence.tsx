@@ -8,8 +8,7 @@ import { Database, Search, Filter } from 'lucide-react';
 
 function EvidenceExplorer() {
   const [evidence, setEvidence] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/evidence`)
@@ -29,16 +28,6 @@ function EvidenceExplorer() {
       </header>
 
       <div className="flex-1 bg-slate-900 border border-slate-800 rounded-lg overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-slate-800 flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search vector database..." className="w-full bg-slate-950 border border-slate-800 rounded-md pl-10 pr-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50" />
-          </div>
-          <button className="px-4 py-2 bg-slate-800 text-slate-300 rounded-md flex items-center gap-2 hover:bg-slate-700 transition-colors border border-slate-700">
-            <Filter className="w-4 h-4" /> Filter
-          </button>
-        </div>
-
         <div className="flex-1 overflow-auto p-4">
           {loading ? (
             <div className="flex items-center justify-center h-full text-slate-500">Loading vectors...</div>
@@ -49,7 +38,7 @@ function EvidenceExplorer() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {evidence.filter(item => item.content.toLowerCase().includes(search.toLowerCase()) || item.source_id.toLowerCase().includes(search.toLowerCase())).map(item => (
+              {evidence.map(item => (
                 <div key={item.id} className="bg-slate-800/50 border border-slate-700/50 p-4 rounded-lg hover:border-cyan-500/50 transition-colors cursor-pointer group">
                   <div className="flex justify-between items-start mb-2">
                     <span className="text-xs font-mono text-cyan-400 bg-cyan-950/50 px-2 py-1 rounded">{item.source_id}</span>
