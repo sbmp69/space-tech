@@ -97,13 +97,15 @@ function TelemetryPage() {
     const ws = new WebSocket(`${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/telemetry`);
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+      if (msg.type !== 'telemetry') return;
+      const tdata = msg.data;
       data = [...data.slice(-49), {
-        time: `14:32:${String(msg.tick).padStart(2, '0')}`,
-        temperature: msg.core_temp,
-        fanRpm: msg.life_support * 40,
-        voltage: msg.voltage
+        time: msg.timestamp.slice(0, 5),
+        temperature: tdata.core_temp || 80,
+        fanRpm: (tdata.life_support || 50) * 40,
+        voltage: tdata.voltage || 12
       }];
-      setTick(msg.tick);
+      setTick(Date.now());
     };
     return () => ws.close();
   }, []);
