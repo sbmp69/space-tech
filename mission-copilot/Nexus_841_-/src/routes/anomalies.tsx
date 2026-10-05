@@ -159,7 +159,7 @@ function AnomaliesPage() {
                 <div className="mt-2 font-mono text-[10px] text-muted-foreground">SYSTEM • OPENED JUST NOW • OWNER AI TRIAGE</div>
                 <p className="mt-5 border-l-2 border-warning/50 pl-3 text-[12px] leading-relaxed text-muted-foreground">
                   <span className="font-mono text-[10px] tracking-[0.12em] text-warning block mb-1">AI SITREP ANALYSIS</span>
-                  {(anomaly.subtext || "").includes("AI SITREP:") ? (anomaly.subtext || "").split("AI SITREP:")[1] : "Requesting AI Analysis..."}
+                  {(anomaly.description || "").includes("AI SITREP:") ? (anomaly.description || "").split("AI SITREP:")[1] : "Requesting AI Analysis..."}
                 </p>
               </div>
 
