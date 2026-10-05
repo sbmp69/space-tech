@@ -4,9 +4,8 @@ import { missionSnapshot } from "@/lib/mission-data";
 
 const ORBIT = "M 60 250 A 300 92 -12 1 1 660 120 A 300 92 -12 1 1 60 250";
 
-export function MissionHero({ clock }: { clock: string }) {
-  const temp = missionSnapshot.anomaly.temperatureC.toFixed(1);
-  return (
+export function MissionHero({ clock, anomaly }: { clock: string, anomaly?: any }) {
+    return (
     <section aria-label="Mission command view" className="hero-console relative mb-5 overflow-hidden border border-border">
       <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         {/* Command readout */}
@@ -40,16 +39,28 @@ export function MissionHero({ clock }: { clock: string }) {
               <dd className="mt-2 text-[14px] tabular-nums text-foreground">184 <span className="text-quiet">/ 210</span></dd>
               <div className="mt-2 h-px bg-border"><div className="h-px w-[87.6%] bg-signal-cyan" /></div>
             </div>
-            <a href="#anomaly-heading" className="group col-span-2 flex items-center justify-between gap-4 border-l-2 border-warning bg-background/90 p-4 transition-colors hover:bg-warning/10">
-              <div>
-                <dt className="flex items-center gap-2 text-[8px] tracking-[0.18em] text-warning">
-                  <span className="size-1.5 animate-pulse rounded-full bg-warning" /> ACTIVE ANOMALY · THERMAL SYSTEM
-                </dt>
-                <dd className="mt-1.5 text-[34px] leading-none tabular-nums text-warning">{temp}<span className="text-[16px]">°C</span></dd>
-                <div className="mt-1.5 text-[9px] tracking-[0.1em] text-muted-foreground">NORMAL 60–80°C · DETECTED {missionSnapshot.anomaly.detectedAt} UTC</div>
+                        {anomaly?.type && anomaly.type !== "NONE" ? (
+              <Link to="/anomalies" className="group col-span-2 flex items-center justify-between gap-4 border-l-2 border-warning bg-background/90 p-4 transition-colors hover:bg-warning/10 cursor-pointer">
+                <div>
+                  <dt className="flex items-center gap-2 text-[8px] tracking-[0.18em] text-warning">
+                    <span className="size-1.5 animate-pulse rounded-full bg-warning" /> ACTIVE ANOMALY • {anomaly.type}
+                  </dt>
+                  <dd className="mt-1.5 text-[34px] leading-none tabular-nums text-warning">{anomaly.value}</dd>
+                  <div className="mt-1.5 text-[9px] tracking-[0.1em] text-muted-foreground">{anomaly.subtext}</div>
+                </div>
+                <ArrowRight className="size-4 text-warning transition-transform group-hover:translate-x-1" />
+              </Link>
+            ) : (
+              <div className="group col-span-2 flex items-center justify-between gap-4 border-l-2 border-healthy bg-background/90 p-4 transition-colors">
+                <div>
+                  <dt className="flex items-center gap-2 text-[8px] tracking-[0.18em] text-healthy">
+                    <span className="size-1.5 rounded-full bg-healthy" /> SYSTEM STATUS NOMINAL
+                  </dt>
+                  <dd className="mt-1.5 text-[24px] leading-none tabular-nums text-healthy">OPERATIONAL</dd>
+                  <div className="mt-1.5 text-[9px] tracking-[0.1em] text-muted-foreground">NO ACTIVE ANOMALIES DETECTED</div>
+                </div>
               </div>
-              <ArrowRight className="size-4 text-warning transition-transform group-hover:translate-x-1" />
-            </a>
+            )}
           </dl>
         </div>
 
