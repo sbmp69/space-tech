@@ -94,11 +94,11 @@ function TelemetryPage() {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    const ws = new WebSocket(${import.meta.env.VITE_WS_URL || \'ws://localhost:8000\'}/ws/telemetry);
+    const ws = new WebSocket(`${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/telemetry`);
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       data = [...data.slice(-49), {
-        time: 14:32:,
+        time: `14:32:${String(msg.tick).padStart(2, '0')}`,
         temperature: msg.core_temp,
         fanRpm: msg.life_support * 40,
         voltage: msg.voltage
