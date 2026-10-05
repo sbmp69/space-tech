@@ -33,7 +33,11 @@ import {
   YAxis,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { missionSnapshot } from "@/lib/mission-data";
+import { missionSnapshot as originalSnapshot } from "@/lib/mission-data";
+let missionSnapshot = JSON.parse(JSON.stringify(originalSnapshot));
+let isFetchingSitrep = false;
+let hasAnomaly = false;
+
 import { MissionHero } from "@/components/mission-hero";
 
 export const Route = createFileRoute("/")({
@@ -66,6 +70,58 @@ const navigation = [
 ];
 
 function MissionOverview() {
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const ws = new WebSocket(`${import.meta.env.VITE_WS_URL || 'ws://localhost:8000'}/ws/telemetry`);
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type !== 'telemetry') return;
+      
+      const tdata = msg.data;
+      const newTemp = tdata.core_temp || 80;
+      const newVoltage = tdata.voltage || 12;
+      const newRpm = (tdata.life_support || 50) * 40;
+      
+      missionSnapshot.telemetry = [...missionSnapshot.telemetry.slice(-49), {
+        time: msg.timestamp.slice(0, 5),
+        temperature: newTemp,
+        fanRpm: newRpm,
+        voltage: newVoltage
+      }];
+      
+      missionSnapshot.anomaly.temperatureC = newTemp;
+      
+      if (newVoltage < 20.0 && !isFetchingSitrep && !hasAnomaly) {
+        isFetchingSitrep = true;
+        hasAnomaly = true;
+        missionSnapshot.anomaly.description = "AI SITREP: Analyzing telemetry via OpenAI gpt-4o-mini...";
+        
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/sitrep`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ temperature: newTemp, voltage: newVoltage, life_support: tdata.life_support || 100 })
+        })
+        .then(r => r.json())
+        .then(d => {
+          missionSnapshot.anomaly.description = "AI SITREP: " + d.sitrep;
+        })
+        .catch(e => {
+          missionSnapshot.anomaly.description = "AI SITREP: Analysis failed.";
+        })
+        .finally(() => {
+          isFetchingSitrep = false;
+        });
+      } else if (newVoltage >= 20.0 && hasAnomaly) {
+         hasAnomaly = false;
+         missionSnapshot.anomaly.description = "System Nominal. Awaiting telemetry anomalies...";
+      }
+      
+      setTick(Date.now());
+    };
+    return () => ws.close();
+  }, []);
+
   const [clock, setClock] = useState("--:--:-- UTC");
   const [selectedEvent, setSelectedEvent] = useState<number | null>(null);
 

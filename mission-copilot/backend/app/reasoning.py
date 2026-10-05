@@ -13,7 +13,7 @@ Return a JSON object with the following keys:
     prompt = f"Query: {query}\n\nEvidence:\n{json.dumps(evidence)}\n"
     
     response = openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt}

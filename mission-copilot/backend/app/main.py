@@ -138,3 +138,13 @@ async def websocket_endpoint(websocket: WebSocket):
             await manager.broadcast(json.dumps(payload))
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+from .sitrep import generate_sitrep, SitrepRequest
+
+@app.post("/api/sitrep")
+async def handle_sitrep(req: SitrepRequest):
+    try:
+        report = generate_sitrep(req)
+        return {"sitrep": report}
+    except Exception as e:
+        return {"sitrep": "SYSTEM ERROR: Unable to generate SITREP due to API failure."}
