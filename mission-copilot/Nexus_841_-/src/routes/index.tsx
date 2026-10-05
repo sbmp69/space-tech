@@ -91,18 +91,26 @@ function MissionOverview() {
       }];
       
       missionSnapshot.anomaly.temperatureC = newTemp;
-
-      const anomalyDetected = newVoltage < 20.0 || newTemp > 85.0 || newRpm < 3000;
       
-      if (newVoltage < 20.0) {
+      const wasPower = missionSnapshot.anomaly.type === "POWER SYSTEM";
+      const wasThermal = missionSnapshot.anomaly.type === "THERMAL SYSTEM";
+      const wasRpm = missionSnapshot.anomaly.type === "LIFE SUPPORT";
+
+      const isPower = wasPower ? newVoltage < 21.0 : newVoltage < 20.0;
+      const isThermal = wasThermal ? newTemp > 83.0 : newTemp > 85.0;
+      const isRpm = wasRpm ? newRpm < 3200 : newRpm < 3000;
+
+      const anomalyDetected = isPower || isThermal || isRpm;
+
+      if (isPower) {
           missionSnapshot.anomaly.type = "POWER SYSTEM";
           missionSnapshot.anomaly.value = newVoltage.toFixed(1) + " V";
           missionSnapshot.anomaly.subtext = "NORMAL 24-32V • DETECTED " + currentTime;
-      } else if (newTemp > 85.0) {
+      } else if (isThermal) {
           missionSnapshot.anomaly.type = "THERMAL SYSTEM";
           missionSnapshot.anomaly.value = newTemp.toFixed(1) + " °C";
           missionSnapshot.anomaly.subtext = "NORMAL 60-80°C • DETECTED " + currentTime;
-      } else if (newRpm < 3000) {
+      } else if (isRpm) {
           missionSnapshot.anomaly.type = "LIFE SUPPORT";
           missionSnapshot.anomaly.value = newRpm.toFixed(0) + " RPM";
           missionSnapshot.anomaly.subtext = "NORMAL 3500-4500 • DETECTED " + currentTime;
@@ -112,12 +120,12 @@ function MissionOverview() {
 
       // Dynamic Systems Update
       missionSnapshot.systems = [
-        { name: "THERMAL", status: newTemp > 85.0 ? "WARNING" : "NOMINAL", state: newTemp > 85.0 ? "warning" : "healthy" },
-        { name: "POWER", status: newVoltage < 20.0 ? "CRITICAL" : "NOMINAL", state: newVoltage < 20.0 ? "critical" : "healthy" },
+        { name: "THERMAL", status: isThermal ? "WARNING" : "NOMINAL", state: isThermal ? "warning" : "healthy" },
+        { name: "POWER", status: isPower ? "CRITICAL" : "NOMINAL", state: isPower ? "critical" : "healthy" },
         { name: "COMMUNICATIONS", status: "NOMINAL", state: "healthy" },
         { name: "PROPULSION", status: "NOMINAL", state: "healthy" },
         { name: "NAVIGATION", status: "NOMINAL", state: "healthy" },
-        { name: "LIFE SUPPORT", status: newRpm < 3000 ? "WARNING" : "NOMINAL", state: newRpm < 3000 ? "warning" : "healthy" },
+        { name: "LIFE SUPPORT", status: isRpm ? "WARNING" : "NOMINAL", state: isRpm ? "warning" : "healthy" },
       ];
 
       // Dynamic Events Update
