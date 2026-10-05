@@ -71,6 +71,7 @@ const missionNav = [
   { to: "/anomalies" as const, label: "Active Anomalies", glyph: "△", count: "01" },
   { to: "/telemetry" as const, label: "Telemetry", glyph: "〽" },
   { to: "/copilot" as const, label: "AI Copilot", glyph: "C" },
+  { to: "/evidence" as const, label: "Evidence", glyph: "E" },
   { to: "/logs" as const, label: "Mission Logs", glyph: "▣" },
   { to: "/procedures" as const, label: "Procedures", glyph: "▱" },
   { to: "/incidents" as const, label: "Incident History", glyph: "◷" },
