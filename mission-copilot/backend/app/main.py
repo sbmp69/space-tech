@@ -135,8 +135,14 @@ async def websocket_endpoint(websocket: WebSocket):
                     "is_anomaly": voltage < 20.0
                 }
             }
-            await manager.broadcast(json.dumps(payload))
-    except WebSocketDisconnect:
+            if websocket not in manager.active_connections:
+                break
+            try:
+                await websocket.send_text(json.dumps(payload))
+            except Exception:
+                manager.disconnect(websocket)
+                break
+    except Exception:
         manager.disconnect(websocket)
 
 from .sitrep import generate_sitrep, SitrepRequest

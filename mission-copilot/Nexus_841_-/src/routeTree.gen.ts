@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnomaliesRouteImport } from './routes/anomalies'
+import { Route as CopilotRouteImport } from './routes/copilot'
+import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as IncidentsRouteImport } from './routes/incidents'
 import { Route as InvestigationRouteImport } from './routes/investigation'
 import { Route as LogsRouteImport } from './routes/logs'
@@ -25,6 +27,16 @@ const IndexRoute = IndexRouteImport.update({
 const AnomaliesRoute = AnomaliesRouteImport.update({
   id: '/anomalies',
   path: '/anomalies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopilotRoute = CopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvidenceRoute = EvidenceRouteImport.update({
+  id: '/evidence',
+  path: '/evidence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidentsRoute = IncidentsRouteImport.update({
@@ -56,6 +68,8 @@ const TelemetryRoute = TelemetryRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
+  '/copilot': typeof CopilotRoute
+  '/evidence': typeof EvidenceRoute
   '/incidents': typeof IncidentsRoute
   '/investigation': typeof InvestigationRoute
   '/logs': typeof LogsRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
+  '/copilot': typeof CopilotRoute
+  '/evidence': typeof EvidenceRoute
   '/incidents': typeof IncidentsRoute
   '/investigation': typeof InvestigationRoute
   '/logs': typeof LogsRoute
@@ -75,6 +91,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
+  '/copilot': typeof CopilotRoute
+  '/evidence': typeof EvidenceRoute
   '/incidents': typeof IncidentsRoute
   '/investigation': typeof InvestigationRoute
   '/logs': typeof LogsRoute
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anomalies'
+    | '/copilot'
+    | '/evidence'
     | '/incidents'
     | '/investigation'
     | '/logs'
@@ -95,6 +115,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anomalies'
+    | '/copilot'
+    | '/evidence'
     | '/incidents'
     | '/investigation'
     | '/logs'
@@ -104,6 +126,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/anomalies'
+    | '/copilot'
+    | '/evidence'
     | '/incidents'
     | '/investigation'
     | '/logs'
@@ -114,6 +138,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnomaliesRoute: typeof AnomaliesRoute
+  CopilotRoute: typeof CopilotRoute
+  EvidenceRoute: typeof EvidenceRoute
   IncidentsRoute: typeof IncidentsRoute
   InvestigationRoute: typeof InvestigationRoute
   LogsRoute: typeof LogsRoute
@@ -135,6 +161,20 @@ declare module '@tanstack/react-router' {
       path: '/anomalies'
       fullPath: '/anomalies'
       preLoaderRoute: typeof AnomaliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copilot': {
+      id: '/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof CopilotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evidence': {
+      id: '/evidence'
+      path: '/evidence'
+      fullPath: '/evidence'
+      preLoaderRoute: typeof EvidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incidents': {
@@ -178,6 +218,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnomaliesRoute: AnomaliesRoute,
+  CopilotRoute: CopilotRoute,
+  EvidenceRoute: EvidenceRoute,
   IncidentsRoute: IncidentsRoute,
   InvestigationRoute: InvestigationRoute,
   LogsRoute: LogsRoute,
