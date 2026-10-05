@@ -98,10 +98,10 @@ function MissionOverview() {
 
       const currentTime = msg.timestamp || new Date().toISOString().substring(11, 19);
       const isPower = wasPower ? newVoltage < 21.0 : newVoltage < 20.0;
-      const isThermal = wasThermal ? newTemp > 83.0 : newTemp > 85.0;
-      const isRpm = wasRpm ? newRpm < 3200 : newRpm < 3000;
+      const isThermal = false;
+      const isRpm = false;
 
-      const anomalyDetected = isPower || isThermal || isRpm;
+      const anomalyDetected = isPower;
 
       if (isPower) {
           missionSnapshot.anomaly.type = "POWER SYSTEM";
