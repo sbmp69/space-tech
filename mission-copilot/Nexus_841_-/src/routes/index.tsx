@@ -96,6 +96,7 @@ function MissionOverview() {
       const wasThermal = missionSnapshot.anomaly.type === "THERMAL SYSTEM";
       const wasRpm = missionSnapshot.anomaly.type === "LIFE SUPPORT";
 
+      const currentTime = msg.timestamp || new Date().toISOString().substring(11, 19);
       const isPower = wasPower ? newVoltage < 21.0 : newVoltage < 20.0;
       const isThermal = wasThermal ? newTemp > 83.0 : newTemp > 85.0;
       const isRpm = wasRpm ? newRpm < 3200 : newRpm < 3000;
@@ -129,7 +130,7 @@ function MissionOverview() {
       ];
 
       // Dynamic Events Update
-      const currentTime = msg.timestamp || new Date().toISOString().substring(11, 19);
+
       if (anomalyDetected && !hasAnomaly) {
          missionSnapshot.events = [{
            time: currentTime,
@@ -345,7 +346,7 @@ function MissionOverview() {
                   const expanded = selectedEvent === index;
                   const levelStyle = event.state === "healthy" ? "text-healthy border-healthy/25 bg-healthy/5" : event.state === "warning" ? "text-warning border-warning/25 bg-warning/5" : "text-critical border-critical/25 bg-critical/5";
                   return (
-                    <button key={event.code} type="button" onClick={() => setSelectedEvent(expanded ? null : index)} aria-expanded={expanded} className="group grid w-full grid-cols-[60px_minmax(0,1fr)_auto] items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-panel-raised sm:grid-cols-[68px_minmax(0,1fr)_auto] sm:px-5">
+                    <button key={index} type="button" onClick={() => setSelectedEvent(expanded ? null : index)} aria-expanded={expanded} className="group grid w-full grid-cols-[60px_minmax(0,1fr)_auto] items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-panel-raised sm:grid-cols-[68px_minmax(0,1fr)_auto] sm:px-5">
                       <span className="pt-0.5 font-mono text-[9px] tabular-nums text-muted-foreground">{event.time}</span>
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-center gap-2">

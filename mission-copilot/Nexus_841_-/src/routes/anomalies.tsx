@@ -4,6 +4,9 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, Command, Radio, Clock3, AlertTriangle, ShieldCheck, Cpu, Activity } from "lucide-react";
 import { missionSnapshot } from "@/lib/mission-data";
 
+let isFetchingSitrep = false;
+let hasAnomaly = false;
+
 export const Route = createFileRoute("/anomalies")({
   component: AnomaliesPage,
 });
@@ -49,8 +52,59 @@ function AnomaliesPage() {
         voltage: newVoltage
       }]);
       
+      const wasPower = missionSnapshot.anomaly.type === "POWER SYSTEM";
+      const wasThermal = missionSnapshot.anomaly.type === "THERMAL SYSTEM";
+      const wasRpm = missionSnapshot.anomaly.type === "LIFE SUPPORT";
+
+      const currentTime = msg.timestamp || new Date().toISOString().substring(11, 19);
+      const isPower = wasPower ? newVoltage < 21.0 : newVoltage < 20.0;
+      const isThermal = wasThermal ? newTemp > 83.0 : newTemp > 85.0;
+      const isRpm = wasRpm ? newRpm < 3200 : newRpm < 3000;
+      const anomalyDetected = isPower || isThermal || isRpm;
+
+      if (isPower) {
+          missionSnapshot.anomaly.type = "POWER SYSTEM";
+          missionSnapshot.anomaly.value = newVoltage.toFixed(1) + " V";
+          missionSnapshot.anomaly.subtext = "NORMAL 24-32V • DETECTED JUST NOW";
+      } else if (isThermal) {
+          missionSnapshot.anomaly.type = "THERMAL SYSTEM";
+          missionSnapshot.anomaly.value = newTemp.toFixed(1) + " °C";
+          missionSnapshot.anomaly.subtext = "NORMAL 60-80°C • DETECTED JUST NOW";
+      } else if (isRpm) {
+          missionSnapshot.anomaly.type = "LIFE SUPPORT";
+          missionSnapshot.anomaly.value = newRpm.toFixed(0) + " RPM";
+          missionSnapshot.anomaly.subtext = "NORMAL 3500-4500 • DETECTED JUST NOW";
+      } else {
+          missionSnapshot.anomaly.type = "NONE";
+      }
+
+      if (anomalyDetected && !isFetchingSitrep && !hasAnomaly) {
+        isFetchingSitrep = true;
+        hasAnomaly = true;
+        missionSnapshot.anomaly.description = "AI SITREP: Analyzing telemetry via OpenAI gpt-4o-mini...";
+
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/sitrep`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ temperature: newTemp, voltage: newVoltage, life_support: tdata.life_support || 100 })
+        })
+        .then(r => r.json())
+        .then(d => {
+          missionSnapshot.anomaly.description = "AI SITREP: " + d.sitrep;
+        })
+        .catch(e => {
+          missionSnapshot.anomaly.description = "AI SITREP: Analysis failed.";
+        })
+        .finally(() => {
+          isFetchingSitrep = false;
+        });
+      } else if (!anomalyDetected && hasAnomaly) {
+         hasAnomaly = false;
+         missionSnapshot.anomaly.description = "System Nominal.";
+      }
+
       // Update anomaly state
-      setAnomaly({ ...missionSnapshot.anomaly });
+      setAnomaly({ ...missionSnapshot.anomaly, description: missionSnapshot.anomaly.description });
       setTick(Date.now());
     };
     return () => ws.close();
