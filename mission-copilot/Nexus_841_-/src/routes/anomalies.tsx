@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Area, AreaChart, ResponsiveContainer, YAxis, CartesianGrid, XAxis, Tooltip } from "recharts";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, Command, Radio, Clock3, AlertTriangle, ShieldCheck, Cpu } from "lucide-react";
+import { ArrowLeft, Command, Radio, Clock3, AlertTriangle, ShieldCheck, Cpu, Activity } from "lucide-react";
 import { missionSnapshot } from "@/lib/mission-data";
 
 export const Route = createFileRoute("/anomalies")({
