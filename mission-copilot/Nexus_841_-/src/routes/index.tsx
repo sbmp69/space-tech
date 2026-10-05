@@ -307,11 +307,11 @@ function MissionOverview() {
                   </div>
                 ))}
               </div>
-              <div className="mx-5 mt-3 mb-4 flex items-center gap-2 border border-warning/20 bg-warning/5 px-3 py-2 text-[9px] text-muted-foreground">
+              <Link to="/anomalies" className="mx-5 mt-3 mb-4 flex items-center gap-2 border border-warning/20 bg-warning/5 px-3 py-2 text-[9px] text-muted-foreground transition-colors hover:bg-warning/15 hover:border-warning/40 cursor-pointer">
                 <AlertTriangle className="size-3.5 shrink-0 text-warning" />
                 <span>{missionSnapshot.systems.filter(s => s.state !== "healthy").length} system(s) require operator attention</span>
                 <ArrowRight className="ml-auto size-3 text-warning" />
-              </div>
+              </Link>
             </section>
 
             <section aria-labelledby="events-heading" className="border border-border bg-panel">
